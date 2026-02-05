@@ -7,14 +7,41 @@
         "data": {
           "api_url": "API URL"
         }
+      },
+      "image_sources": {
+        "title": "Configure Image Sources",
+        "description": "Add image sources by providing their unique code. {sources}",
+        "data": {
+          "code": "Source Code",
+          "name": "Display Name (optional)",
+          "add_source": "Add this source"
+        }
       }
     },
     "error": {
       "cannot_connect": "Unable to connect to the FiftyOne API. Please check the URL and try again.",
+      "duplicate_code": "This code is already configured.",
       "unknown": "An unexpected error occurred."
     },
     "abort": {
       "already_configured": "This API is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "image_sources": {
+        "title": "Manage Image Sources",
+        "description": "Add or remove image sources. {sources}",
+        "data": {
+          "code": "Source Code (to add)",
+          "name": "Display Name (optional)",
+          "remove_code": "Source to remove",
+          "action": "Action"
+        }
+      }
+    },
+    "error": {
+      "duplicate_code": "This code is already configured."
     }
   }
 }

@@ -6,16 +6,25 @@ DOMAIN = "fiftyone"
 API_BASE_URL = "https://api.fiftyone.dev"
 
 # Platforms
-PLATFORMS = ["sensor", "camera"]
+PLATFORMS = ["sensor", "camera", "image"]
 
 # Configuration keys
 CONF_API_URL = "api_url"
+CONF_IMAGE_SOURCES = "image_sources"
 
 # Update intervals (seconds)
 DEFAULT_SCAN_INTERVAL = 60
-WEATHER_SCAN_INTERVAL = 300
-STOCK_SCAN_INTERVAL = 900
-CAMERA_SCAN_INTERVAL = 30
+STOCK_SCAN_INTERVAL = 300
+AVIATION_SCAN_INTERVAL = 120
+CAMERA_SCAN_INTERVAL = 60
 
 # Attribution
 ATTRIBUTION = "Data provided by FiftyOne API"
+
+# Webcam names
+WEBCAM_NAMES = {
+    "basel": "Basel",
+    "bern": "Bern",
+    "lucern": "Lucerne",
+    "zurich": "Zurich",
+}

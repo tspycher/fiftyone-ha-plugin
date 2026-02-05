@@ -7,13 +7,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN
 from .coordinator import FiftyOneDataUpdateCoordinator
 from .api import FiftyOneApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS_LIST: list[Platform] = [Platform.SENSOR, Platform.CAMERA]
+PLATFORMS_LIST: list[Platform] = [Platform.SENSOR, Platform.CAMERA, Platform.IMAGE]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

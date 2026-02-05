@@ -36,30 +36,26 @@ class FiftyOneDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             data: dict[str, Any] = {}
 
-            # Fetch all data types
+            # Fetch stocks
             try:
                 data["stocks"] = await self.api_client.async_get_stocks()
             except FiftyOneApiError as err:
                 _LOGGER.warning("Failed to fetch stocks: %s", err)
-                data["stocks"] = {}
+                data["stocks"] = []
 
-            try:
-                data["weather"] = await self.api_client.async_get_weather()
-            except FiftyOneApiError as err:
-                _LOGGER.warning("Failed to fetch weather: %s", err)
-                data["weather"] = {}
-
+            # Fetch webcams
             try:
                 data["webcams"] = await self.api_client.async_get_webcams()
             except FiftyOneApiError as err:
                 _LOGGER.warning("Failed to fetch webcams: %s", err)
-                data["webcams"] = []
+                data["webcams"] = {}
 
+            # Fetch aviation data for LSZI
             try:
-                data["pictures"] = await self.api_client.async_get_family_pictures()
+                data["aviation"] = await self.api_client.async_get_aviation_lszi()
             except FiftyOneApiError as err:
-                _LOGGER.warning("Failed to fetch pictures: %s", err)
-                data["pictures"] = []
+                _LOGGER.warning("Failed to fetch aviation data: %s", err)
+                data["aviation"] = {}
 
             return data
 

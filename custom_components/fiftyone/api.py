@@ -27,8 +27,8 @@ class FiftyOneApiClient:
         self._session = session
         self._api_url = api_url or API_BASE_URL
 
-    async def _request(self, method: str, endpoint: str, **kwargs: Any) -> Any:
-        """Make a request to the API."""
+    async def _request_json(self, method: str, endpoint: str, **kwargs: Any) -> Any:
+        """Make a JSON request to the API."""
         url = f"{self._api_url}{endpoint}"
 
         try:
@@ -41,54 +41,90 @@ class FiftyOneApiClient:
         except aiohttp.ClientError as err:
             raise FiftyOneApiError(f"Error communicating with API: {err}") from err
 
-    async def async_get_stocks(self) -> dict[str, Any]:
-        """Get stock information."""
-        return await self._request("GET", "/stocks")
-
-    async def async_get_weather(self) -> dict[str, Any]:
-        """Get weather information."""
-        return await self._request("GET", "/weather")
-
-    async def async_get_webcams(self) -> list[dict[str, Any]]:
-        """Get list of webcams."""
-        return await self._request("GET", "/webcams")
-
-    async def async_get_webcam_image(self, webcam_id: str) -> bytes:
-        """Get webcam image."""
-        url = f"{self._api_url}/webcams/{webcam_id}/image"
-
+    async def _request_bytes(self, url: str) -> bytes:
+        """Fetch bytes from a URL."""
         try:
             async with self._session.get(url) as response:
                 if response.status != 200:
                     raise FiftyOneApiError(
-                        f"Failed to get webcam image with status {response.status}"
+                        f"Request failed with status {response.status}"
                     )
                 return await response.read()
         except aiohttp.ClientError as err:
-            raise FiftyOneApiError(f"Error getting webcam image: {err}") from err
+            raise FiftyOneApiError(f"Error fetching data: {err}") from err
 
-    async def async_get_family_pictures(self) -> list[dict[str, Any]]:
-        """Get family pictures."""
-        return await self._request("GET", "/pictures")
+    async def async_get_stocks(self) -> list[dict[str, Any]]:
+        """Get stock information.
 
-    async def async_get_picture_image(self, picture_id: str) -> bytes:
-        """Get a specific picture."""
-        url = f"{self._api_url}/pictures/{picture_id}"
+        Returns list of stocks with: symbol, quantity, name?, price?, value?
+        """
+        return await self._request_json("GET", "/stocks")
 
+    async def async_get_webcams(self) -> dict[str, str | None]:
+        """Get webcam URLs.
+
+        Returns dict with keys: basel, bern, lucern, zurich (values are URLs or None)
+        """
+        return await self._request_json("GET", "/webcams")
+
+    async def async_get_webcam_image(self, url: str) -> bytes:
+        """Fetch webcam image from URL."""
+        return await self._request_bytes(url)
+
+    async def async_get_aviation_lszi(self) -> dict[str, Any]:
+        """Get aviation data for LSZI.
+
+        Returns: {weather: AviationWeather, runway: Runway}
+        """
+        return await self._request_json("GET", "/aviation/lszi")
+
+    async def async_get_latest_image(
+        self, code: str | None = None, max_height: int | None = None
+    ) -> bytes:
+        """Get latest family image."""
+        params = {}
+        if code:
+            params["code"] = code
+        if max_height:
+            params["max_height"] = max_height
+
+        url = f"{self._api_url}/image/latest"
         try:
-            async with self._session.get(url) as response:
+            async with self._session.get(url, params=params) as response:
                 if response.status != 200:
                     raise FiftyOneApiError(
-                        f"Failed to get picture with status {response.status}"
+                        f"Failed to get image with status {response.status}"
                     )
                 return await response.read()
         except aiohttp.ClientError as err:
-            raise FiftyOneApiError(f"Error getting picture: {err}") from err
+            raise FiftyOneApiError(f"Error getting image: {err}") from err
+
+    async def async_get_random_image(
+        self, code: str | None = None, max_height: int | None = None
+    ) -> bytes:
+        """Get random family image."""
+        params = {}
+        if code:
+            params["code"] = code
+        if max_height:
+            params["max_height"] = max_height
+
+        url = f"{self._api_url}/image/random"
+        try:
+            async with self._session.get(url, params=params) as response:
+                if response.status != 200:
+                    raise FiftyOneApiError(
+                        f"Failed to get image with status {response.status}"
+                    )
+                return await response.read()
+        except aiohttp.ClientError as err:
+            raise FiftyOneApiError(f"Error getting image: {err}") from err
 
     async def async_test_connection(self) -> bool:
         """Test if the API is reachable."""
         try:
-            await self._request("GET", "/health")
+            # Use the root endpoint which returns a random movie quote
+            await self._request_json("GET", "/")
             return True
         except FiftyOneApiError:
             return False
