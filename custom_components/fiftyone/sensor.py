@@ -43,20 +43,17 @@ async def async_setup_entry(
             entities.append(FiftyOneStockValueSensor(coordinator, entry, stock["symbol"]))
             entities.append(FiftyOneStockQuantitySensor(coordinator, entry, stock["symbol"]))
 
-    # Add aviation sensors
-    aviation_data = coordinator.data.get("aviation", {})
-    if aviation_data:
-        # Weather sensors
-        entities.append(FiftyOneAviationTemperatureSensor(coordinator, entry))
-        entities.append(FiftyOneAviationHumiditySensor(coordinator, entry))
-        entities.append(FiftyOneAviationPressureSensor(coordinator, entry))
-        entities.append(FiftyOneAviationWindSpeedSensor(coordinator, entry))
-        entities.append(FiftyOneAviationWindDirectionSensor(coordinator, entry))
-        entities.append(FiftyOneAviationCloudBaseSensor(coordinator, entry))
-        entities.append(FiftyOneAviationDensityAltitudeSensor(coordinator, entry))
-        entities.append(FiftyOneAviationPressureAltitudeSensor(coordinator, entry))
-        # Runway sensor
-        entities.append(FiftyOneRunwayStatusSensor(coordinator, entry))
+    # Add aviation sensors (always create them, they'll show unavailable if no data)
+    entities.append(FiftyOneAviationTemperatureSensor(coordinator, entry))
+    entities.append(FiftyOneAviationHumiditySensor(coordinator, entry))
+    entities.append(FiftyOneAviationPressureSensor(coordinator, entry))
+    entities.append(FiftyOneAviationWindSpeedSensor(coordinator, entry))
+    entities.append(FiftyOneAviationWindDirectionSensor(coordinator, entry))
+    entities.append(FiftyOneAviationCloudBaseSensor(coordinator, entry))
+    entities.append(FiftyOneAviationDensityAltitudeSensor(coordinator, entry))
+    entities.append(FiftyOneAviationPressureAltitudeSensor(coordinator, entry))
+    # Runway sensor
+    entities.append(FiftyOneRunwayStatusSensor(coordinator, entry))
 
     async_add_entities(entities)
 

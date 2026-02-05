@@ -53,9 +53,17 @@ class FiftyOneDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Fetch aviation data for LSZI
             try:
                 data["aviation"] = await self.api_client.async_get_aviation_lszi()
+                _LOGGER.debug("Fetched aviation data: %s", data["aviation"])
             except FiftyOneApiError as err:
                 _LOGGER.warning("Failed to fetch aviation data: %s", err)
                 data["aviation"] = {}
+
+            _LOGGER.debug(
+                "Data update complete - stocks: %d, webcams: %d, aviation: %s",
+                len(data.get("stocks", [])),
+                len(data.get("webcams", {})),
+                "yes" if data.get("aviation") else "no",
+            )
 
             return data
 

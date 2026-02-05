@@ -13,10 +13,7 @@ CONF_API_URL = "api_url"
 CONF_IMAGE_SOURCES = "image_sources"
 
 # Update intervals (seconds)
-DEFAULT_SCAN_INTERVAL = 60
-STOCK_SCAN_INTERVAL = 300
-AVIATION_SCAN_INTERVAL = 120
-CAMERA_SCAN_INTERVAL = 60
+DEFAULT_SCAN_INTERVAL = 600  # 10 minutes
 
 # Attribution
 ATTRIBUTION = "Data provided by FiftyOne API"
