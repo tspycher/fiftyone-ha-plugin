@@ -6,6 +6,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN
 from .coordinator import FiftyOneDataUpdateCoordinator
@@ -21,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     api_client = FiftyOneApiClient(
-        session=hass.helpers.aiohttp_client.async_get_clientsession(),
+        session=async_get_clientsession(hass),
         api_url=entry.data.get("api_url"),
     )
 
