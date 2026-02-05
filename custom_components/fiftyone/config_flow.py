@@ -92,10 +92,11 @@ class FiftyOneConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
         # Build description with current sources
-        description = None
         if self._image_sources:
             source_list = ", ".join([s["name"] for s in self._image_sources])
-            description = f"Current sources: {source_list}"
+            sources_text = f"Current sources: {source_list}"
+        else:
+            sources_text = ""
 
         return self.async_show_form(
             step_id="image_sources",
@@ -107,7 +108,7 @@ class FiftyOneConfigFlow(ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
-            description_placeholders={"sources": description} if description else None,
+            description_placeholders={"sources": sources_text},
         )
 
     @staticmethod
@@ -192,14 +193,15 @@ class FiftyOneOptionsFlow(OptionsFlow):
         )
 
         # Build description
-        description = None
         if self._image_sources:
             source_list = ", ".join([f"{s['name']} ({s['code']})" for s in self._image_sources])
-            description = f"Current sources: {source_list}"
+            sources_text = f"Current sources: {source_list}"
+        else:
+            sources_text = "No sources configured."
 
         return self.async_show_form(
             step_id="image_sources",
             data_schema=vol.Schema(schema_dict),
             errors=errors,
-            description_placeholders={"sources": description} if description else None,
+            description_placeholders={"sources": sources_text},
         )
