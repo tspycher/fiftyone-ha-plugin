@@ -79,18 +79,17 @@ class FiftyOneApiClient:
         return await self._request_json("GET", "/aviation/lszi")
 
     async def async_get_latest_image(
-        self, code: str | None = None, max_height: int | None = None
+        self, code: str | None = None, max_height: int = 900
     ) -> bytes:
         """Get latest family image."""
-        params = {}
+        params = {"max_height": max_height}
         if code:
             params["code"] = code
-        if max_height:
-            params["max_height"] = max_height
 
         url = f"{self._api_url}/image/latest"
+        timeout = aiohttp.ClientTimeout(total=60)
         try:
-            async with self._session.get(url, params=params) as response:
+            async with self._session.get(url, params=params, timeout=timeout) as response:
                 if response.status != 200:
                     raise FiftyOneApiError(
                         f"Failed to get image with status {response.status}"
@@ -100,18 +99,17 @@ class FiftyOneApiClient:
             raise FiftyOneApiError(f"Error getting image: {err}") from err
 
     async def async_get_random_image(
-        self, code: str | None = None, max_height: int | None = None
+        self, code: str | None = None, max_height: int = 900
     ) -> bytes:
         """Get random family image."""
-        params = {}
+        params = {"max_height": max_height}
         if code:
             params["code"] = code
-        if max_height:
-            params["max_height"] = max_height
 
         url = f"{self._api_url}/image/random"
+        timeout = aiohttp.ClientTimeout(total=60)
         try:
-            async with self._session.get(url, params=params) as response:
+            async with self._session.get(url, params=params, timeout=timeout) as response:
                 if response.status != 200:
                     raise FiftyOneApiError(
                         f"Failed to get image with status {response.status}"
