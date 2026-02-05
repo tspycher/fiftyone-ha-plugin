@@ -14,7 +14,9 @@ from custom_components.fiftyone.sensor import (
     FiftyOneAviationTemperatureSensor,
     FiftyOneAviationWindDirectionSensor,
     FiftyOneAviationWindSpeedSensor,
+    FiftyOneRunwayAdditionalSensor,
     FiftyOneRunwayStatusSensor,
+    FiftyOneRunwayTextSensor,
     FiftyOneStockPriceSensor,
     FiftyOneStockQuantitySensor,
     FiftyOneStockValueSensor,
@@ -101,10 +103,6 @@ class TestAviationSensors:
         assert sensor.native_value == 15.5
         assert sensor.name == "LSZI Temperature"
 
-        attrs = sensor.extra_state_attributes
-        assert attrs["dewpoint"] == 8.0
-        assert attrs["spread"] == 7.5
-
     def test_humidity_sensor(
         self, mock_coordinator: MagicMock, mock_entry: MagicMock
     ) -> None:
@@ -131,11 +129,6 @@ class TestAviationSensors:
 
         assert sensor.native_value == 8.1
         assert sensor.name == "LSZI Wind Speed"
-
-        attrs = sensor.extra_state_attributes
-        assert attrs["wind_kmh"] == 15.0
-        assert attrs["gust_kt"] == 13.5
-        assert attrs["gust_kmh"] == 25.0
 
     def test_wind_direction_sensor(
         self, mock_coordinator: MagicMock, mock_entry: MagicMock
@@ -173,66 +166,33 @@ class TestAviationSensors:
         assert sensor.native_value == 1650
         assert sensor.name == "LSZI Pressure Altitude"
 
-        attrs = sensor.extra_state_attributes
-        assert attrs["field_elevation"] == 1575
-        assert attrs["valid"] is True
 
+class TestRunwaySensors:
+    """Tests for runway sensors."""
 
-class TestRunwaySensor:
-    """Tests for runway status sensor."""
-
-    def test_runway_status_open(
+    def test_runway_status_sensor(
         self, mock_coordinator: MagicMock, mock_entry: MagicMock
     ) -> None:
-        """Test runway status sensor when open."""
+        """Test runway status sensor returns numeric value."""
         sensor = FiftyOneRunwayStatusSensor(mock_coordinator, mock_entry)
 
-        assert sensor.native_value == "Open"
+        assert sensor.native_value == 1
         assert sensor.name == "LSZI Runway Status"
 
         attrs = sensor.extra_state_attributes
-        assert attrs["status_code"] == 1
         assert attrs["altitude"] == 1575
-        assert attrs["text"] == "Runway open"
 
-    def test_runway_status_closed(self, mock_entry: MagicMock) -> None:
-        """Test runway status sensor when closed."""
-        coordinator = MagicMock()
-        coordinator.data = {
-            "aviation": {
-                "runway": {"status": 0, "altitude": 1575},
+    def test_runway_status_values(self, mock_entry: MagicMock) -> None:
+        """Test runway status sensor with different values."""
+        for status in [0, 1, 2, 3]:
+            coordinator = MagicMock()
+            coordinator.data = {
+                "aviation": {
+                    "runway": {"status": status, "altitude": 1575},
+                }
             }
-        }
-
-        sensor = FiftyOneRunwayStatusSensor(coordinator, mock_entry)
-
-        assert sensor.native_value == "Closed"
-
-    def test_runway_status_ppr(self, mock_entry: MagicMock) -> None:
-        """Test runway status sensor when PPR."""
-        coordinator = MagicMock()
-        coordinator.data = {
-            "aviation": {
-                "runway": {"status": 2, "altitude": 1575},
-            }
-        }
-
-        sensor = FiftyOneRunwayStatusSensor(coordinator, mock_entry)
-
-        assert sensor.native_value == "PPR"
-
-    def test_runway_status_unknown(self, mock_entry: MagicMock) -> None:
-        """Test runway status sensor with unknown status code."""
-        coordinator = MagicMock()
-        coordinator.data = {
-            "aviation": {
-                "runway": {"status": 99, "altitude": 1575},
-            }
-        }
-
-        sensor = FiftyOneRunwayStatusSensor(coordinator, mock_entry)
-
-        assert sensor.native_value == "Status 99"
+            sensor = FiftyOneRunwayStatusSensor(coordinator, mock_entry)
+            assert sensor.native_value == status
 
     def test_runway_status_empty_data(self, mock_entry: MagicMock) -> None:
         """Test runway status sensor with empty data."""
@@ -240,5 +200,38 @@ class TestRunwaySensor:
         coordinator.data = {"aviation": {}}
 
         sensor = FiftyOneRunwayStatusSensor(coordinator, mock_entry)
+
+        assert sensor.native_value is None
+
+    def test_runway_text_sensor(
+        self, mock_coordinator: MagicMock, mock_entry: MagicMock
+    ) -> None:
+        """Test runway text sensor."""
+        sensor = FiftyOneRunwayTextSensor(mock_coordinator, mock_entry)
+
+        assert sensor.native_value == "Runway open"
+        assert sensor.name == "LSZI Runway Text"
+
+    def test_runway_additional_sensor(
+        self, mock_coordinator: MagicMock, mock_entry: MagicMock
+    ) -> None:
+        """Test runway additional sensor."""
+        coordinator = MagicMock()
+        coordinator.data = {
+            "aviation": {
+                "runway": {"status": 1, "additional": "PPR weekends"},
+            }
+        }
+
+        sensor = FiftyOneRunwayAdditionalSensor(coordinator, mock_entry)
+
+        assert sensor.native_value == "PPR weekends"
+        assert sensor.name == "LSZI Runway Additional"
+
+    def test_runway_additional_empty(
+        self, mock_coordinator: MagicMock, mock_entry: MagicMock
+    ) -> None:
+        """Test runway additional sensor with no data."""
+        sensor = FiftyOneRunwayAdditionalSensor(mock_coordinator, mock_entry)
 
         assert sensor.native_value is None
