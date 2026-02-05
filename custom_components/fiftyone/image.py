@@ -1,8 +1,11 @@
 """Image platform for FiftyOne integration."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+
+# Cache duration for images
+IMAGE_CACHE_DURATION = timedelta(minutes=2)
 
 from homeassistant.components.image import ImageEntity
 from homeassistant.config_entries import ConfigEntry
@@ -67,12 +70,23 @@ class FiftyOneLatestImage(CoordinatorEntity[FiftyOneDataUpdateCoordinator], Imag
         return self._image_last_updated
 
     async def async_image(self) -> bytes | None:
-        """Return the latest image."""
+        """Return the latest image, using cache if still valid."""
+        now = datetime.now()
+
+        # Return cached image if still valid
+        if (
+            self._cached_image is not None
+            and self._image_last_updated is not None
+            and (now - self._image_last_updated) < IMAGE_CACHE_DURATION
+        ):
+            return self._cached_image
+
+        # Fetch new image
         try:
             self._cached_image = await self.coordinator.api_client.async_get_latest_image(
                 code=self._code
             )
-            self._image_last_updated = datetime.now()
+            self._image_last_updated = now
             self.async_write_ha_state()
             return self._cached_image
         except Exception as err:
@@ -109,12 +123,23 @@ class FiftyOneRandomImage(CoordinatorEntity[FiftyOneDataUpdateCoordinator], Imag
         return self._image_last_updated
 
     async def async_image(self) -> bytes | None:
-        """Return a random image."""
+        """Return a random image, using cache if still valid."""
+        now = datetime.now()
+
+        # Return cached image if still valid
+        if (
+            self._cached_image is not None
+            and self._image_last_updated is not None
+            and (now - self._image_last_updated) < IMAGE_CACHE_DURATION
+        ):
+            return self._cached_image
+
+        # Fetch new image
         try:
             self._cached_image = await self.coordinator.api_client.async_get_random_image(
                 code=self._code
             )
-            self._image_last_updated = datetime.now()
+            self._image_last_updated = now
             self.async_write_ha_state()
             return self._cached_image
         except Exception as err:
