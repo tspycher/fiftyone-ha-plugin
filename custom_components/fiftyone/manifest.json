@@ -1,0 +1,12 @@
+{
+  "domain": "fiftyone",
+  "name": "FiftyOne",
+  "codeowners": ["@tspycher"],
+  "config_flow": true,
+  "documentation": "https://gitlab.example.com/tspycher/fiftyone-ha-plugin",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://gitlab.example.com/tspycher/fiftyone-ha-plugin/issues",
+  "requirements": ["aiohttp>=3.8.0"],
+  "version": "0.1.0"
+}

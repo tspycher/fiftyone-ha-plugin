@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FiftyOne API Connection",
+        "description": "Configure the connection to your FiftyOne API.",
+        "data": {
+          "api_url": "API URL"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the FiftyOne API. Please check the URL and try again.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This API is already configured."
+    }
+  }
+}
