@@ -1,7 +1,7 @@
 """Sensor platform for FiftyOne integration."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -608,7 +608,7 @@ class FiftyOneAviationTimestampSensor(CoordinatorEntity[FiftyOneDataUpdateCoordi
         weather = aviation.get("weather", {})
         timestamp = weather.get("timestamp")
         if timestamp:
-            return datetime.fromtimestamp(timestamp)
+            return datetime.fromtimestamp(timestamp, tz=timezone.utc)
         return None
 
 
