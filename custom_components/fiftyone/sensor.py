@@ -101,6 +101,15 @@ class FiftyOneStockPriceSensor(CoordinatorEntity[FiftyOneDataUpdateCoordinator],
         """Return the stock price."""
         return self._get_stock_data().get("price")
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional state attributes."""
+        stock = self._get_stock_data()
+        return {
+            "name": stock.get("name"),
+            "symbol": stock.get("symbol"),
+        }
+
 
 class FiftyOneStockValueSensor(CoordinatorEntity[FiftyOneDataUpdateCoordinator], SensorEntity):
     """Representation of a FiftyOne stock total value sensor."""
