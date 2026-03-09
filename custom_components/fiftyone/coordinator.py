@@ -50,6 +50,13 @@ class FiftyOneDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.warning("Failed to fetch webcams: %s", err)
                 data["webcams"] = {}
 
+            # Fetch oil price
+            try:
+                data["oilprice"] = await self.api_client.async_get_oilprice()
+            except FiftyOneApiError as err:
+                _LOGGER.warning("Failed to fetch oil price: %s", err)
+                data["oilprice"] = {}
+
             # Fetch aviation data for LSZI
             try:
                 data["aviation"] = await self.api_client.async_get_aviation_lszi()

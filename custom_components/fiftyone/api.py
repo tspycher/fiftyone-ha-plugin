@@ -118,6 +118,13 @@ class FiftyOneApiClient:
         except aiohttp.ClientError as err:
             raise FiftyOneApiError(f"Error getting image: {err}") from err
 
+    async def async_get_oilprice(self) -> dict[str, Any]:
+        """Get oil price data.
+
+        Returns: {price: float, date: str}
+        """
+        return await self._request_json("GET", "/oilprice")
+
     async def async_test_connection(self) -> bool:
         """Test if the API is reachable."""
         try:

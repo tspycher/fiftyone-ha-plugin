@@ -43,6 +43,9 @@ async def async_setup_entry(
             entities.append(FiftyOneStockValueSensor(coordinator, entry, stock["symbol"]))
             entities.append(FiftyOneStockQuantitySensor(coordinator, entry, stock["symbol"]))
 
+    # Add oil price sensor
+    entities.append(FiftyOneOilPriceSensor(coordinator, entry))
+
     # Add aviation weather sensors (always create them, they'll show unavailable if no data)
     entities.append(FiftyOneAviationTemperatureSensor(coordinator, entry))
     entities.append(FiftyOneAviationDewpointSensor(coordinator, entry))
@@ -68,6 +71,38 @@ async def async_setup_entry(
     entities.append(FiftyOneRunwayAdditionalSensor(coordinator, entry))
 
     async_add_entities(entities)
+
+
+class FiftyOneOilPriceSensor(CoordinatorEntity[FiftyOneDataUpdateCoordinator], SensorEntity):
+    """Oil price sensor."""
+
+    _attr_attribution = ATTRIBUTION
+    _attr_has_entity_name = True
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "CHF/100L"
+    _attr_name = "Oil Price"
+    _attr_icon = "mdi:oil"
+
+    def __init__(
+        self,
+        coordinator: FiftyOneDataUpdateCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_oilprice"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the oil price."""
+        return self.coordinator.data.get("oilprice", {}).get("price")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional state attributes."""
+        return {
+            "date": self.coordinator.data.get("oilprice", {}).get("date"),
+        }
 
 
 class FiftyOneStockPriceSensor(CoordinatorEntity[FiftyOneDataUpdateCoordinator], SensorEntity):
